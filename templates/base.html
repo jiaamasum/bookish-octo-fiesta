@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CEMS - Class & Exam Management{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2-family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="page {% block body_class %}{% endblock %}">
+    <header class="topbar">
+        {% block topbar %}
+        <div class="brand">
+            <span class="brand-mark">C</span>
+            <div class="brand-text">
+                <strong>CEMS</strong>
+                <small>Class & Exam Management</small>
+            </div>
+        </div>
+        <div class="top-actions">
+            <div class="status-dot online"></div>
+            <span class="status-label">Live sandbox</span>
+            <div class="role-switch">
+                <button class="chip" data-role="admin">Super Admin</button>
+                <button class="chip" data-role="teacher">Teacher</button>
+                <button class="chip" data-role="student">Student</button>
+            </div>
+            <div class="topbar-cta">
+                <a class="btn ghost" href="/accounts/login">Login</a>
+                <a class="btn primary" href="/accounts/register/student">Sign up</a>
+            </div>
+        </div>
+        {% endblock %}
+    </header>
+    <main class="layout {% block layout_class %}{% endblock %}">
+        <aside class="sidebar">
+            {% block sidebar %}
+            <div class="sidebar-group">
+                <p class="sidebar-label">Navigation</p>
+                <nav class="menu">
+                    <a href="/" class="menu-link">Home</a>
+                    <a href="/accounts/dashboard/admin/" class="menu-link">Admin dashboard</a>
+                    <a href="/accounts/dashboard/teacher/" class="menu-link">Teacher dashboard</a>
+                    <a href="/accounts/dashboard/student/" class="menu-link">Student dashboard</a>
+                </nav>
+            </div>
+            <div class="sidebar-group muted">
+                <p class="sidebar-label">Shortcuts</p>
+                <div class="pill-list">
+                    <span class="pill">Login</span>
+                    <span class="pill">Register student</span>
+                    <span class="pill">Reset password</span>
+                    <span class="pill">Static preview</span>
+                </div>
+            </div>
+            {% endblock %}
+        </aside>
+        <section class="content">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+    <script src="{% static 'js/script.js' %}" defer></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+
+#others
+SRS_extracted.txt
+try_to_do.md
+CHANGES.md
+.SRS_extracted.txt
+.try_to_do.md
+.CHANGES.md
+
+# Django + local settings
+*.log
+*.pot
+*.pyc
+local_settings.py
+.env
+.env.*
+*.sqlite3
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# IDEs/editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Static/media artifacts
+static/
+media/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+
+

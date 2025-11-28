@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Teacher Dashboard - CEMS{% endblock %}
+
+{% block topbar %}
+<div class="brand">
+    <span class="brand-mark">C</span>
+    <div class="brand-text">
+        <strong>CEMS</strong>
+        <small>Teacher workspace</small>
+    </div>
+</div>
+<div class="top-actions">
+    <div class="status-dot online"></div>
+    <span class="status-label">Logged in as {{ request.user.username }} | {{ teacher.employee_code|default:"N/A" }}</span>
+    <div class="chip">Teacher</div>
+    <a class="btn ghost" href="{% url 'accounts:logout' %}">Logout</a>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-group">
+    <p class="sidebar-label">Teacher</p>
+    <nav class="menu">
+        <a href="#overview" class="menu-link active">Overview</a>
+        <a href="#classes" class="menu-link">Classes</a>
+        <a href="#exams" class="menu-link">Exams</a>
+    </nav>
+</div>
+<div class="sidebar-group muted">
+    <p class="sidebar-label">Limits</p>
+    <div class="pill-list">
+        <span class="pill">Assigned classes only</span>
+        <span class="pill">No student creation</span>
+        <span class="pill">Own exams only</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="section hero" id="overview">
+    <div>
+        <p class="eyebrow">Welcome back, {{ request.user.first_name|default:request.user.username }}</p>
+        <h1 class="hero-title">Static teacher dashboard.</h1>
+        <p class="muted">All class, subject, and exam management flows are temporarily removed. Employee ID: {{ teacher.employee_code|default:"N/A" }}</p>
+    </div>
+    <div class="hero-stats">
+        <div class="metric">
+            <p class="stat-label">Classes</p>
+            <p class="stat-value">{{ static_counts.classes }}</p>
+            <span class="tag muted">Static</span>
+        </div>
+        <div class="metric">
+            <p class="stat-label">Subjects</p>
+            <p class="stat-value">{{ static_counts.subjects }}</p>
+            <span class="tag muted">Static</span>
+        </div>
+        <div class="metric">
+            <p class="stat-label">Exams</p>
+            <p class="stat-value">{{ static_counts.exams }}</p>
+            <span class="tag muted">Static</span>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="next">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">What stays</p>
+            <h2>Authentication + role routing only.</h2>
+        </div>
+        <div class="hint">Use password reset and logout as usual.</div>
+    </div>
+    <div class="grid two">
+        <div class="card">
+            <div class="card-header">
+                <span>Classes</span>
+                <div class="chip">Placeholder</div>
+            </div>
+            <p>Class assignments, subjects, and student rosters will be restored later. Nothing to act on right now.</p>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span>Exams</span>
+                <div class="chip">Placeholder</div>
+            </div>
+            <p>Exam creation, management, and results entry are turned off. This section is a static preview only.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

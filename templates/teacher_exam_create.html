@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Exam{% endblock %}
+
+{% block topbar %}
+<div class="brand">
+    <span class="brand-mark">C</span>
+    <div class="brand-text">
+        <strong>CEMS</strong>
+        <small>Teacher workspace</small>
+    </div>
+</div>
+<div class="top-actions">
+    <div class="status-dot online"></div>
+    <span class="status-label">Create exam for assigned class/subject</span>
+    <div class="chip">Teacher</div>
+    <a class="btn ghost" href="{% url 'accounts:logout' %}">Logout</a>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-group">
+    <p class="sidebar-label">Teacher</p>
+    <nav class="menu">
+        <a href="{% url 'accounts:teacher_dashboard' %}" class="menu-link">Back to dashboard</a>
+    </nav>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Create exam</p>
+            <h2>Only for your assigned class and subject.</h2>
+        </div>
+        <div class="hint">Total max marks per subject/class-year cannot exceed 100.</div>
+    </div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="tag {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" class="form">
+        {% csrf_token %}
+        <label>Assignment</label>
+        <select name="assignment_id" required>
+            <option value="">Select class & subject</option>
+            {% for assignment in assignments %}
+                <option value="{{ assignment.id }}">
+                    {{ assignment.academic_year.year }} - {{ assignment.class_offering.class_level.name }} ({{ assignment.subject.name }})
+                </option>
+            {% endfor %}
+        </select>
+
+        <label>Title</label>
+        <input type="text" name="title" required placeholder="Mid Term">
+
+        <label>Date</label>
+        <input type="date" name="date" required>
+
+        <label>Max marks</label>
+        <input type="number" name="max_marks" min="1" max="100" value="100" required>
+
+        <div class="form-footer">
+            <button class="btn primary" type="submit">Create exam</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

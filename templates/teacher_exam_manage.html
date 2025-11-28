@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load account_tags %}
+
+{% block title %}Manage Exam - {{ exam.title }}{% endblock %}
+
+{% block topbar %}
+<div class="brand">
+    <span class="brand-mark">C</span>
+    <div class="brand-text">
+        <strong>CEMS</strong>
+        <small>Teacher workspace</small>
+    </div>
+</div>
+<div class="top-actions">
+    <div class="status-dot online"></div>
+    <span class="status-label">Exam: {{ exam.title }} | {{ exam.class_offering.class_level.name }} ({{ exam.academic_year.year }})</span>
+    <div class="chip">Teacher</div>
+    <a class="btn ghost" href="{% url 'accounts:logout' %}">Logout</a>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-group">
+    <p class="sidebar-label">Teacher</p>
+    <nav class="menu">
+        <a href="{% url 'accounts:teacher_dashboard' %}" class="menu-link">Back to dashboard</a>
+    </nav>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Manage exam</p>
+            <h2>{{ exam.title }} ({{ exam.subject.name }})</h2>
+        </div>
+        <div class="hint">
+            {% if allow_edit %}
+                Enter marks once per student. Existing marks are locked.
+            {% else %}
+                Read-only; marks cannot be edited for this exam.
+            {% endif %}
+        </div>
+    </div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="tag {% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="table-scroll">
+            <table class="table compact">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Student ID</th>
+                        <th>Roll</th>
+                        <th>Marks (0 - {{ exam.max_marks }})</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enrollment in enrollments %}
+                        {% with mark=existing_marks|get_item:enrollment.id %}
+                        <tr>
+                            <td>{{ enrollment.student.user.username }}</td>
+                            <td>{{ enrollment.student_identifier|default:"N/A" }}</td>
+                            <td>{{ enrollment.roll_number|default:"TBD" }}</td>
+                            <td>
+                                {% if mark %}
+                                    <span class="pill muted">{{ mark.marks_obtained }} / {{ exam.max_marks }}</span>
+                                {% else %}
+                                    {% if allow_edit %}
+                                        <input type="number" name="mark_{{ enrollment.id }}" min="0" max="{{ exam.max_marks }}" step="0.01" placeholder="Enter marks">
+                                    {% else %}
+                                        <span class="pill muted">Not graded</span>
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endwith %}
+                    {% empty %}
+                        <tr><td colspan="4">No students enrolled for this class.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if allow_edit %}
+        <div class="form-footer">
+            <button class="btn primary" type="submit">Save marks</button>
+        </div>
+        {% endif %}
+    </form>
+</section>
+{% endblock %}

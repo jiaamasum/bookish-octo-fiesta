@@ -41,51 +41,145 @@
 <section class="section hero" id="overview">
     <div>
         <p class="eyebrow">Welcome back, {{ request.user.first_name|default:request.user.username }}</p>
-        <h1 class="hero-title">Static teacher dashboard.</h1>
-        <p class="muted">All class, subject, and exam management flows are temporarily removed. Employee ID: {{ teacher.employee_code|default:"N/A" }}</p>
+        <h1 class="hero-title">Teaching assignments (all years).</h1>
+        <p class="muted">Employee ID: {{ teacher.employee_code|default:"N/A" }}</p>
     </div>
     <div class="hero-stats">
         <div class="metric">
             <p class="stat-label">Classes</p>
-            <p class="stat-value">{{ static_counts.classes }}</p>
-            <span class="tag muted">Static</span>
+            <p class="stat-value">{{ assignments|length }}</p>
+            <span class="tag muted">All years</span>
         </div>
         <div class="metric">
             <p class="stat-label">Subjects</p>
-            <p class="stat-value">{{ static_counts.subjects }}</p>
-            <span class="tag muted">Static</span>
+            <p class="stat-value">{{ subject_count }}</p>
+            <span class="tag muted">Per assignment</span>
         </div>
         <div class="metric">
             <p class="stat-label">Exams</p>
-            <p class="stat-value">{{ static_counts.exams }}</p>
-            <span class="tag muted">Static</span>
+            <p class="stat-value">{{ exams|length }}</p>
+            <span class="tag muted">Created by you</span>
         </div>
     </div>
 </section>
 
-<section class="section" id="next">
+<section class="section" id="assignments">
     <div class="section-header">
         <div>
-            <p class="eyebrow">What stays</p>
-            <h2>Authentication + role routing only.</h2>
+            <p class="eyebrow">Assignments</p>
+            <h2>Classes and subjects you own (by year).</h2>
         </div>
-        <div class="hint">Use password reset and logout as usual.</div>
+        <div class="hint">Current and previous years included.</div>
     </div>
     <div class="grid two">
-        <div class="card">
-            <div class="card-header">
-                <span>Classes</span>
-                <div class="chip">Placeholder</div>
+        {% if assignments %}
+            {% for assignment in assignments %}
+                <div class="card">
+                    <div class="card-header">
+                        <span>{{ assignment.academic_year.year }} - {{ assignment.class_offering.class_level.name }}</span>
+                        <div class="chip">{{ assignment.subject.name }}</div>
+                    </div>
+                    <p class="muted">Students: {{ assignment.student_count }}</p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="card">
+                <p class="muted">No active assignments for the current year.</p>
             </div>
-            <p>Class assignments, subjects, and student rosters will be restored later. Nothing to act on right now.</p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="section" id="exams">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Exams</p>
+            <h2>Current year exams you have created.</h2>
         </div>
-        <div class="card">
-            <div class="card-header">
-                <span>Exams</span>
-                <div class="chip">Placeholder</div>
-            </div>
-            <p>Exam creation, management, and results entry are turned off. This section is a static preview only.</p>
+        <div class="hint">Dates cannot be in the past; scoped to your assignments.</div>
+        <div class="cta-row">
+            <a class="btn primary small" href="{% url 'accounts:teacher_exam_create' %}">Create exam</a>
         </div>
+    </div>
+    <div class="table-scroll">
+        <table class="table compact">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Class</th>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Max</th>
+                    <th>Status</th>
+                    <th>Manage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if exams %}
+                        {% for exam in exams %}
+                        <tr>
+                            <td>{{ exam.title }}</td>
+                            <td>{{ exam.class_offering.class_level.name }}</td>
+                            <td>{{ exam.academic_year.year }}</td>
+                            <td>{{ exam.subject.name }}</td>
+                            <td>{{ exam.date }}</td>
+                            <td>{{ exam.max_marks }}</td>
+                            <td><span class="tag muted">{{ exam.status }}</span></td>
+                            <td style="white-space: nowrap; text-align: center;">
+                                <a class="link-btn" href="{% url 'accounts:teacher_manage_exam' exam.id %}">Manage</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                {% else %}
+                    <tr><td colspan="8">No current-year exams.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="section" id="past-exams">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Past exams</p>
+            <h2>Previous years' classes and subjects (read-only).</h2>
+        </div>
+        <div class="hint">Marks cannot be edited for past years; open to view per student.</div>
+    </div>
+    <div class="table-scroll">
+        <table class="table compact">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Class</th>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Max</th>
+                    <th>View</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if past_exams %}
+                    {% for exam in past_exams %}
+                        <tr>
+                            <td>{{ exam.title }}</td>
+                            <td>{{ exam.class_offering.class_level.name }}</td>
+                            <td>{{ exam.academic_year.year }}</td>
+                            <td>{{ exam.subject.name }}</td>
+                            <td>{{ exam.date }}</td>
+                            <td>{{ exam.max_marks }}</td>
+                            <td style="white-space: nowrap; text-align: center;">
+                                <a class="link-btn" href="{% url 'accounts:teacher_manage_exam' exam.id %}">View</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="7">No past exams recorded.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
     </div>
 </section>
 {% endblock %}

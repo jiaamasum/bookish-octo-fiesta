@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import date
 from typing import Optional
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Max, Q, Sum
+from django.db.models import Max, Q
 from django.utils import timezone
 
 from accounts.models import StudentProfile, TeacherProfile
@@ -123,6 +124,17 @@ class StudentEnrollment(models.Model):
     def clean(self):
         if self.class_offering and self.academic_year and self.class_offering.academic_year_id != self.academic_year_id:
             raise ValidationError("Academic year must match the class offering year.")
+        if self.academic_year:
+            current_year = current_year_value()
+            previous_year = None
+            if self.pk:
+                previous_year = (
+                    self.__class__.objects.filter(pk=self.pk)
+                    .values_list("academic_year__year", flat=True)
+                    .first()
+                )
+            if (previous_year is None or previous_year != self.academic_year.year) and self.academic_year.year < current_year:
+                raise ValidationError("Cannot enroll students in past academic years.")
         if self.academic_year and self.active:
             clash = StudentEnrollment.objects.filter(
                 student=self.student, academic_year=self.academic_year, active=True
@@ -163,19 +175,21 @@ class StudentEnrollment(models.Model):
             self.student.save(update_fields=["roll_number", "current_academic_year", "current_class_level"])
 
     def compute_overall_percent(self):
-        marks = list(self.exam_marks.select_related("exam__subject", "exam"))
+        marks = list(
+            self.exam_marks.select_related("exam__subject", "exam").order_by("-exam__date", "-exam_id")
+        )
         if not marks:
             return None
-        subject_totals = {}
+        subject_scores = defaultdict(list)
         for mark in marks:
             max_marks = float(mark.exam.max_marks) if mark.exam.max_marks else 0
             percent = float(mark.marks_obtained) / max_marks * 100 if max_marks else 0
-            subj_id = mark.exam.subject_id
-            total, count = subject_totals.get(subj_id, (0.0, 0))
-            subject_totals[subj_id] = (total + percent, count + 1)
-        if not subject_totals:
+            scores = subject_scores[mark.exam.subject_id]
+            if len(scores) < 3:
+                scores.append(percent)
+        if not subject_scores:
             return None
-        subject_avgs = [total / count for total, count in subject_totals.values() if count]
+        subject_avgs = [sum(scores) / len(scores) for scores in subject_scores.values() if scores]
         if not subject_avgs:
             return None
         return sum(subject_avgs) / len(subject_avgs)
@@ -258,15 +272,13 @@ class Exam(models.Model):
         if self.max_marks > 100:
             raise ValidationError("Max marks cannot exceed 100.")
         if self.class_offering and self.subject:
-            existing_total = (
+            existing_count = (
                 Exam.objects.filter(class_offering=self.class_offering, subject=self.subject)
                 .exclude(pk=self.pk)
-                .aggregate(total=Sum("max_marks"))
-                .get("total")
-                or 0
+                .count()
             )
-            if existing_total + self.max_marks > 100:
-                raise ValidationError("Total max marks for all exams of this subject in the class-year cannot exceed 100.")
+            if existing_count >= 3:
+                raise ValidationError("Cannot create more than 3 exams for this subject in this class offering.")
 
     def save(self, *args, **kwargs):
         if self.class_offering and not self.academic_year_id:

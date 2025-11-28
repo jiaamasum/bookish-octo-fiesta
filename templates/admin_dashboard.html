@@ -1,0 +1,543 @@
+{% extends 'base.html' %}
+
+{% block title %}Super Admin Dashboard - CEMS{% endblock %}
+
+{% block topbar %}
+<div class="brand">
+    <span class="brand-mark">C</span>
+    <div class="brand-text">
+        <strong>CEMS</strong>
+        <small>Class & Exam Management</small>
+    </div>
+</div>
+<div class="top-actions">
+    <div class="status-dot online"></div>
+    <span class="status-label">Logged in as Super Admin</span>
+    <div class="chip">Super Admin</div>
+    <a class="btn ghost" href="{% url 'accounts:logout' %}">Logout</a>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-group">
+    <p class="sidebar-label">Super Admin</p>
+    <nav class="menu">
+        <a href="#overview" class="menu-link active">Overview</a>
+        <a href="#structure" class="menu-link">Academic setup</a>
+        <a href="#assignments" class="menu-link">Teacher assignment</a>
+        <a href="#students" class="menu-link">Admissions</a>
+        <a href="#exams" class="menu-link">Exams</a>
+        <a href="#results" class="menu-link">Results</a>
+    </nav>
+</div>
+<div class="sidebar-group muted">
+    <p class="sidebar-label">Shortcuts</p>
+    <div class="pill-list">
+        <span class="pill">Create year</span>
+        <span class="pill">Add class</span>
+        <span class="pill">Assign teacher</span>
+        <span class="pill">Publish finals</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="section" id="overview">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Super Admin</p>
+            <h2>Control center for academic years, classes, and exams.</h2>
+        </div>
+        <div class="hint">Full visibility; permissions enforced.</div>
+    </div>
+    <div class="metrics-grid">
+        <div class="metric">
+            <p class="stat-label">Academic years</p>
+            <p class="stat-value">3</p>
+            <span class="tag success">Current: 2025 / 2026</span>
+        </div>
+        <div class="metric">
+            <p class="stat-label">Classes</p>
+            <p class="stat-value">18</p>
+            <span class="tag accent">6 sections active</span>
+        </div>
+        <div class="metric">
+            <p class="stat-label">Subjects</p>
+            <p class="stat-value">54</p>
+            <span class="tag muted">Linked to classes</span>
+        </div>
+        <div class="metric">
+            <p class="stat-label">Upcoming exams</p>
+            <p class="stat-value">7</p>
+            <span class="tag accent">Admin assigned</span>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="structure">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Academic structure</p>
+            <h2>Create academic years, classes, and subjects.</h2>
+        </div>
+        <div class="hint">Built for quick edits-no page reloads needed after wiring.</div>
+    </div>
+    <div class="grid two">
+        <div class="card">
+            <div class="card-header">
+                <span>Academic year</span>
+                <div class="chip">Control</div>
+            </div>
+            <form class="form">
+                <label>Year label</label>
+                <input type="text" placeholder="2026 / 2027">
+                <label>Status</label>
+                <select>
+                    <option>Current</option>
+                    <option>Planning</option>
+                    <option>Archived</option>
+                </select>
+                <div class="form-footer">
+                    <button class="btn primary">Save</button>
+                    <span class="helper">Pinned to dashboard</span>
+                </div>
+            </form>
+            <div class="timeline tight">
+                <div class="timeline-item active">
+                    <div>
+                        <p class="title">2025 / 2026</p>
+                        <p class="subtitle">Enrollment open</p>
+                    </div>
+                    <span class="tag success">Live</span>
+                </div>
+                <div class="timeline-item">
+                    <div>
+                        <p class="title">2024 / 2025</p>
+                        <p class="subtitle">Read-only</p>
+                    </div>
+                    <span class="tag muted">Closed</span>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span>Classes & subjects</span>
+                <div class="chip">Linked</div>
+            </div>
+            <div class="two-up gap">
+                <form class="form slim">
+                    <label>Class name</label>
+                    <input type="text" placeholder="Grade 11 - Section A">
+                    <label>Section</label>
+                    <input type="text" placeholder="A / B / C">
+                    <button class="btn secondary full">Create class</button>
+                </form>
+                <form class="form slim">
+                    <label>Subject</label>
+                    <input type="text" placeholder="Chemistry">
+                    <label>Attach to class</label>
+                    <select>
+                        <option>Grade 11 - A</option>
+                        <option>Grade 11 - B</option>
+                        <option>Grade 10 - B</option>
+                    </select>
+                    <button class="btn primary full">Add subject</button>
+                </form>
+            </div>
+            <div class="table-scroll">
+                <table class="table compact">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Section</th>
+                            <th>Subjects</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Grade 11</td>
+                            <td>A</td>
+                            <td>Math, Physics, Chemistry, Literature</td>
+                            <td><span class="tag success">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td>Grade 10</td>
+                            <td>B</td>
+                            <td>Math, Physics, Biology, History</td>
+                            <td><span class="tag accent">In draft</span></td>
+                        </tr>
+                        <tr>
+                            <td>Grade 9</td>
+                            <td>A</td>
+                            <td>English, Geography, Art</td>
+                            <td><span class="tag muted">Archived</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="assignments">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Teacher assignment</p>
+            <h2>Map teachers to class-subject pairs per academic year.</h2>
+        </div>
+        <div class="hint">Required before teachers can enter marks.</div>
+    </div>
+    <div class="grid two">
+        <div class="card">
+            <div class="card-header">
+                <span>Create teacher account</span>
+                <div class="chip">Admin</div>
+            </div>
+            <form class="form">
+                <label>Full name</label>
+                <input type="text" placeholder="Teacher name">
+                <label>Email</label>
+                <input type="email" placeholder="teacher@school.edu">
+                <label>Temporary password</label>
+                <input type="password" placeholder="--------">
+                <div class="hint">Teacher role account will be created; they can reset after login.</div>
+                <div class="form-footer">
+                    <button class="btn primary">Create teacher</button>
+                    <span class="helper">Sends invite email with reset link.</span>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span>Assign classes and subjects</span>
+                <div class="chip">Multi-select</div>
+            </div>
+            <form class="form inline-form">
+                <label>Teacher</label>
+                <select>
+                    <option>Select teacher</option>
+                    <option>Maria Collins</option>
+                    <option>Rayden Chen</option>
+                    <option>Shaila Iqbal</option>
+                </select>
+                <label>Classes</label>
+                <div class="pill-list selectable">
+                    <label class="pill selectable"><input type="checkbox"> Grade 10 - B</label>
+                    <label class="pill selectable"><input type="checkbox"> Grade 11 - A</label>
+                    <label class="pill selectable"><input type="checkbox"> Grade 9 - A</label>
+                </div>
+                <label>Subjects</label>
+                <div class="pill-list selectable">
+                    <label class="pill selectable"><input type="checkbox"> Physics</label>
+                    <label class="pill selectable"><input type="checkbox"> Mathematics</label>
+                    <label class="pill selectable"><input type="checkbox"> English</label>
+                </div>
+                <label>Academic year</label>
+                <select>
+                    <option>2025 / 2026</option>
+                    <option>2024 / 2025</option>
+                </select>
+                <div class="form-footer">
+                    <button class="btn primary">Assign</button>
+                    <span class="helper">Assign multiple classes and subjects for this teacher.</span>
+                </div>
+            </form>
+            <div class="table-scroll">
+                <table class="table compact">
+                    <thead>
+                        <tr>
+                            <th>Teacher</th>
+                            <th>Classes</th>
+                            <th>Subjects</th>
+                            <th>Year</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Maria Collins</td>
+                            <td>Grade 11 - A</td>
+                            <td>Chemistry, Physics</td>
+                            <td>2025 / 2026</td>
+                            <td><span class="tag success">Active</span></td>
+                            <td><button class="link-btn">Reassign</button></td>
+                        </tr>
+                        <tr>
+                            <td>Rayden Chen</td>
+                            <td>Grade 10 - B</td>
+                            <td>Physics, Math Lab</td>
+                            <td>2025 / 2026</td>
+                            <td><span class="tag accent">Pending approval</span></td>
+                            <td><button class="link-btn">Approve</button></td>
+                        </tr>
+                        <tr>
+                            <td>Shaila Iqbal</td>
+                            <td>Grade 9 - A</td>
+                            <td>English</td>
+                            <td>2024 / 2025</td>
+                            <td><span class="tag muted">Archived</span></td>
+                            <td><button class="link-btn">View history</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section" id="students">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Student admission & promotion</p>
+            <h2>Admit students into academic years and promote cohorts safely.</h2>
+        </div>
+        <div class="hint">Preserves academic history automatically.</div>
+    </div>
+    <div class="grid two">
+        <div class="card form-card">
+            <div class="card-header">
+                <span>New admission</span>
+                <div class="chip">Enroll</div>
+            </div>
+            <form class="form">
+                <label>Student name</label>
+                <input type="text" placeholder="Full name">
+                <label>Assign class / year</label>
+                <div class="two-up">
+                    <select>
+                        <option>Class</option>
+                        <option>Grade 9 - A</option>
+                        <option>Grade 10 - B</option>
+                    </select>
+                    <select>
+                        <option>Academic year</option>
+                        <option>2025 / 2026</option>
+                        <option>2024 / 2025</option>
+                    </select>
+                </div>
+                <label>Guardian contact</label>
+                <input type="text" placeholder="Email / phone">
+                <div class="form-footer">
+                    <button class="btn primary">Admit</button>
+                    <span class="helper">Creates student_profile</span>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span>Promotion</span>
+                <div class="chip">Bulk</div>
+            </div>
+            <div class="promotion-grid">
+                <div>
+                    <p class="title">Current batch</p>
+                    <select>
+                        <option>2024 / 2025 - Grade 9 - A</option>
+                        <option>2024 / 2025 - Grade 9 - B</option>
+                    </select>
+                </div>
+                <div>
+                    <p class="title">Promote to</p>
+                    <select>
+                        <option>2025 / 2026 - Grade 10 - A</option>
+                        <option>2025 / 2026 - Grade 10 - B</option>
+                    </select>
+                </div>
+                <div class="promotion-actions">
+                    <p class="title">History</p>
+                    <p class="subtitle">Carry forward attendance + exams</p>
+                    <button class="btn secondary">Promote cohort</button>
+                    <span class="tag success">Safe</span>
+                </div>
+            </div>
+            <div class="hint-box">
+                Promotions lock previous-year records while keeping them visible in history.
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="exams">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Exams</p>
+            <h2>Assign exams to classes and subjects.</h2>
+        </div>
+        <div class="hint">Teachers receive assigned exams; they cannot create them.</div>
+    </div>
+    <div class="grid two">
+        <div class="card form-card">
+            <div class="card-header">
+                <span>Create exam</span>
+                <div class="chip">Admin</div>
+            </div>
+            <form class="form">
+                <label>Title</label>
+                <input type="text" placeholder="Mid Term">
+                <label>Date</label>
+                <input type="date">
+                <div class="two-up">
+                    <select>
+                        <option>Class</option>
+                        <option>Grade 9 - A</option>
+                    </select>
+                    <select>
+                        <option>Subject</option>
+                        <option>Mathematics</option>
+                    </select>
+                </div>
+                <label>Max marks</label>
+                <input type="number" placeholder="100">
+                <label>Academic year</label>
+                <select>
+                    <option>2025 / 2026</option>
+                    <option>2024 / 2025</option>
+                </select>
+                <div class="form-footer">
+                    <button class="btn primary">Assign exam</button>
+                    <span class="helper">Sends to teacher dashboard</span>
+                </div>
+            </form>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span>Exam board</span>
+                <div class="chip">Timeline</div>
+            </div>
+            <div class="table-scroll">
+                <table class="table compact">
+                    <thead>
+                        <tr>
+                            <th>Exam</th>
+                            <th>Class</th>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Teacher</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Mid Term</td>
+                            <td>Grade 10 - B</td>
+                            <td>Physics</td>
+                            <td>12 Nov</td>
+                            <td>R. Chen</td>
+                            <td><span class="tag accent">Assigned</span></td>
+                        </tr>
+                        <tr>
+                            <td>Finals</td>
+                            <td>Grade 11 - A</td>
+                            <td>Chemistry</td>
+                            <td>02 Dec</td>
+                            <td>M. Collins</td>
+                            <td><span class="tag success">Marks pending</span></td>
+                        </tr>
+                        <tr>
+                            <td>Unit Test 2</td>
+                            <td>Grade 9 - A</td>
+                            <td>English</td>
+                            <td>18 Nov</td>
+                            <td>S. Iqbal</td>
+                            <td><span class="tag muted">Ready to publish</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="results">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Results</p>
+            <h2>View and control result publication and history.</h2>
+        </div>
+        <div class="hint">Admins see every exam across years.</div>
+    </div>
+    <div class="grid two">
+        <div class="card">
+            <div class="card-header">
+                <span>Result publication</span>
+                <div class="chip">Admin & Teacher</div>
+            </div>
+            <div class="table-scroll">
+                <table class="table compact">
+                    <thead>
+                        <tr>
+                            <th>Exam</th>
+                            <th>Class</th>
+                            <th>Published by</th>
+                            <th>Status</th>
+                            <th>Toggle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Mid Term - Physics</td>
+                            <td>Grade 10 - B</td>
+                            <td>R. Chen</td>
+                            <td><span class="tag success">Published</span></td>
+                            <td><button class="link-btn">Unpublish</button></td>
+                        </tr>
+                        <tr>
+                            <td>Unit Test 2 - English</td>
+                            <td>Grade 9 - A</td>
+                            <td>S. Iqbal</td>
+                            <td><span class="tag accent">Ready</span></td>
+                            <td><button class="link-btn">Publish</button></td>
+                        </tr>
+                        <tr>
+                            <td>Finals - Chemistry</td>
+                            <td>Grade 11 - A</td>
+                            <td>M. Collins</td>
+                            <td><span class="tag muted">Draft</span></td>
+                            <td><button class="link-btn">Approve</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span>Multi-year history</span>
+                <div class="chip">Read-only</div>
+            </div>
+            <div class="history">
+                <div class="history-item">
+                    <div>
+                        <p class="title">2025 / 2026</p>
+                        <p class="subtitle">6 exams published</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="stat-value">88%</p>
+                        <p class="stat-label">Avg pass rate</p>
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div>
+                        <p class="title">2024 / 2025</p>
+                        <p class="subtitle">11 exams</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="stat-value">84%</p>
+                        <p class="stat-label">Avg pass rate</p>
+                    </div>
+                </div>
+                <div class="history-item muted">
+                    <div>
+                        <p class="title">2023 / 2024</p>
+                        <p class="subtitle">Archived</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="stat-value">Stored</p>
+                        <p class="stat-label">Read-only</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

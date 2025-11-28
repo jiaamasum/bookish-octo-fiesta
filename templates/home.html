@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}CEMS - Unified Workspace{% endblock %}
+{% block body_class %}no-topbar{% endblock %}
+{% block topbar %}{% endblock %}
+{% block layout_class %}landing{% endblock %}
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<section class="hero splash" id="hero">
+    <div class="hero-text">
+        <p class="eyebrow">CEMS - Class & Exam Management</p>
+        <h1>Sign in to the simplified CEMS shell.</h1>
+        <p class="lede">Only authentication, role-aware redirects, and static dashboards remain. All other flows are intentionally removed for now.</p>
+        <div class="cta-row">
+            <a class="btn primary" href="{% url 'accounts:student_register' %}">Create account</a>
+            <a class="btn ghost" href="{% url 'accounts:login' %}">Login</a>
+             
+        </div>
+        <div class="tag-row">
+            <span class="tag success">Secure authentication</span>
+            <span class="tag accent">Exam + result workflow</span>
+            <span class="tag muted">Multi-year history</span>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="floating-card accent">
+            <div class="card-header">
+                <span>Live overview</span>
+                <div class="pill small tinted">Preview</div>
+            </div>
+            <div class="stat-pair">
+                <p class="stat-label">Dynamic data</p>
+                <p class="stat-value">Off</p>
+            </div>
+            <div class="stat-pair">
+                <p class="stat-label">Dashboards</p>
+                <p class="stat-value">Static</p>
+            </div>
+            <div class="stat-pair">
+                <p class="stat-label">Roles</p>
+                <p class="stat-value">Admin / Teacher / Student</p>
+            </div>
+            <div class="pill-list">
+                <span class="pill">Admin control</span>
+                <span class="pill">Teacher entry</span>
+                <span class="pill">Student view</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="pillars">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Why CEMS</p>
+            <h2>Designed for calm, confident academic management.</h2>
+        </div>
+        <div class="hint">Static-first landing ready to wire to Django.</div>
+    </div>
+    <div class="grid three">
+        <div class="card highlight">
+            <div class="pill small">Super Admin</div>
+            <h3>Academic structure</h3>
+            <p>Placeholder space for configuring years, classes, and subjects once we reintroduce the academic flows.</p>
+        </div>
+        <div class="card highlight">
+            <div class="pill small">Teacher</div>
+            <h3>Marking flow</h3>
+            <p>Future teacher actions will live here. For now, teachers only land on a static dashboard.</p>
+        </div>
+        <div class="card highlight">
+            <div class="pill small">Student</div>
+            <h3>Performance view</h3>
+            <p>Students get a static preview only. Data-driven results and schedules will return later.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="roles">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Dashboards</p>
+            <h2>Three purpose-built spaces.</h2>
+        </div>
+        <div class="hint">Navigate directly to the role you need.</div>
+    </div>
+    <div class="grid three">
+        <a class="dashboard-card" href="{% url 'accounts:login' %}">
+            <div class="card-header">
+                <span>Super Admin</span>
+                <div class="tag success">Full control</div>
+            </div>
+            <p>Static dashboard only. Future controls for academic years and permissions will plug in here.</p>
+            <div class="meta-row">
+                <span class="pill">Secure</span>
+                <span class="pill">History-aware</span>
+            </div>
+        </a>
+        <a class="dashboard-card" href="{% url 'accounts:login' %}">
+            <div class="card-header">
+                <span>Teacher</span>
+                <div class="tag accent">Focused</div>
+            </div>
+            <p>Static teacher view. Class, exam, and publishing flows are intentionally removed for now.</p>
+            <div class="meta-row">
+                <span class="pill">Limited scope</span>
+                <span class="pill">Attendance</span>
+            </div>
+        </a>
+        <a class="dashboard-card" href="{% url 'accounts:login' %}">
+            <div class="card-header">
+                <span>Student</span>
+                <div class="tag muted">Read-only</div>
+            </div>
+            <p>Static student view only. Enrollment, schedules, and marks will be wired back in later.</p>
+            <div class="meta-row">
+                <span class="pill">Results</span>
+                <span class="pill">Past years</span>
+            </div>
+        </a>
+    </div>
+</section>
+
+<section class="section callout" id="cta">
+    <div>
+        <p class="eyebrow">Get started</p>
+        <h2>Login or create an account to preview roles.</h2>
+        <p class="lede">Authentication and password reset work end-to-end; everything else is static until rebuilt.</p>
+    </div>
+    <div class="cta-row">
+        <a class="btn primary" href="{% url 'accounts:student_register' %}">Sign up</a>
+        <a class="btn ghost" href="{% url 'accounts:login' %}">Login</a>
+    </div>
+</section>
+{% endblock %}

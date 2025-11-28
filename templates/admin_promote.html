@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Promote Class{% endblock %}
+
+{% block topbar %}
+<div class="brand">
+    <span class="brand-mark">C</span>
+    <div class="brand-text">
+        <strong>CEMS</strong>
+        <small>Admin workspace</small>
+    </div>
+</div>
+<div class="top-actions">
+    <div class="status-dot online"></div>
+    <span class="status-label">Promote a class to next year</span>
+    <div class="chip">Admin</div>
+    <a class="btn ghost" href="{% url 'accounts:logout' %}">Logout</a>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-group">
+    <p class="sidebar-label">Admin</p>
+    <nav class="menu">
+        <a href="{% url 'accounts:admin_dashboard' %}" class="menu-link">Dashboard</a>
+        <a href="{% url 'accounts:admin_promote' %}" class="menu-link active">Promote class</a>
+        <a href="{% url 'accounts:admin_performance' %}" class="menu-link">Student performance</a>
+    </nav>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Promote</p>
+            <h2>Move a class to the next academic year.</h2>
+        </div>
+        <div class="hint">Advances or repeats students based on subject marks (>=40%).</div>
+    </div>
+    <div class="cta-row">
+        <a class="btn secondary" href="{% url 'accounts:admin_performance' %}">View student performance</a>
+    </div>
+
+    {% if errors %}
+        <div class="messages">
+            {% for err in errors %}
+                <div class="tag error">{{ err }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if message %}
+        <div class="messages">
+            <div class="tag success">{{ message }}</div>
+        </div>
+    {% endif %}
+
+    <form method="post" class="form">
+        {% csrf_token %}
+        <label>Select class offering</label>
+        <select name="class_offering_id" required>
+            <option value="">Choose class & year</option>
+            {% for offering in class_offerings %}
+                <option value="{{ offering.id }}">
+                    {{ offering.academic_year.year }} - {{ offering.class_level.name }}
+                </option>
+            {% endfor %}
+        </select>
+        <div class="form-footer">
+            <button class="btn primary" type="submit">Run promotion</button>
+        </div>
+    </form>
+</section>
+
+{% if results %}
+<section class="section">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Results</p>
+            <h2>Promotion outcomes</h2>
+        </div>
+        <div class="hint">Passed -> next class; Failed -> repeat; Skipped -> existing target enrollment.</div>
+    </div>
+    <div class="table-scroll">
+        <table class="table compact">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in results %}
+                    <tr>
+                        <td>{{ r.student.user.username }} ({{ r.student.student_id|default:"N/A" }})</td>
+                        <td>{{ r.from_enrollment.academic_year.year }} - {{ r.from_enrollment.class_offering.class_level.name }}</td>
+                        <td>
+                            {% if r.to_enrollment %}
+                                {{ r.to_enrollment.academic_year.year }} - {{ r.to_enrollment.class_offering.class_level.name }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td><span class="pill {% if r.status == 'passed' %}success{% elif r.status == 'failed' %}accent{% else %}muted{% endif %}">{{ r.status }}</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,33 +1,42 @@
 # Class Exam Management System (CEMS)
 
-A Django 5.2 project for managing classes, exams, and results. The current snapshot focuses on secure authentication and static UI previews while the domain workflows are being rebuilt.
+A Django 5.2 project for running school academics and exam workflows end-to-end with role-aware dashboards for students, teachers, and admins.
 
-## Current Scope
-- Authentication: login/logout, student self-sign-up, password reset (raises an error when an email is unknown), console email backend for local testing.
-- Role routing: redirects authenticated users to role dashboards; catch-all URLs and 404s return to the home view.
-- Profiles: `TeacherProfile` with auto-generated employee codes (`EMP###`), `StudentProfile` with generated IDs (`225002###`) that never get overwritten, and a safeguard that removes any student profile when a teacher profile is created.
-- Dashboards: landing page plus Super Admin, Teacher, and Student dashboards rendered as static previews with placeholder stats and copy.
-- Styling: shared base layout with Space Grotesk/Manrope fonts and static assets under `cems/static`.
+## Features
+- Auth and roles: login/logout, student self-sign-up, password reset that errors on unknown emails, role-based redirect, and a catch-all route that returns users to the correct dashboard.
+- Profiles and identity: teacher profiles auto-generate employee codes (`EMP###`); student profiles generate permanent IDs (`225002###`), keep roll numbers in sync with enrollments, and drop any existing student profile when a teacher profile is created for the same user.
+- Academic structure: migrations seed AcademicYears 2024-2050, ClassLevels CLASS 6-CLASS 10, Subjects BANGLA/ENGLISH/MATH/SCIENCE, and every year/class ClassOffering combination.
+- Enrollments: one active enrollment per student per academic year; roll numbers auto-increment within a class offering; student IDs are assigned on first enrollment and never overwritten.
+- Teacher assignments: one teacher per class-offering/subject, blocked for past academic years; helpers in `academics.services` simplify assignment creation.
+- Exams and marks: admins or assigned teachers can create exams for the current year only, with no past dates and subject totals capped at 100 marks; marks entry is limited to the class roster and disabled while an exam is in draft; per-student averages and letter grades are computed across subjects.
+- Promotions: admin-only promotion batches advance students when every subject average is at least 40%; otherwise they repeat. Existing target enrollments are skipped, and PromotionResult rows record passed/failed/skipped outcomes.
+- Dashboards: student dashboard shows enrollment, roll, subjects, upcoming exams, marks, and historical performance with computed grades; teacher dashboard lists assignments, rosters, current/past exams, and mark entry; admin dashboard plus performance and promotion screens. All domain models are also registered in Django admin with a bulk "Promote selected classes" action.
 
-## Recent Updates
-- Rebuilt the landing page and all dashboards as static previews while class/exam/result flows are paused.
-- Added a role-aware mixin to push logged-in users away from auth pages to their correct dashboard.
-- Hardened password reset to surface errors when the email does not exist.
-- Implemented automatic identifiers for teachers and students, including persistence guards and cleanup when a user becomes a teacher.
-- Added a catch-all URL + 404 handler that redirect to the home view to keep navigation consistent.
+## Project Layout
+- `accounts/`: authentication views, role routing, dashboards, student registration, password reset form, and user profiles.
+- `academics/`: domain models and services for years, classes, subjects, enrollments, teacher assignments, exams/marks, and promotions, plus admin customizations.
+- `templates/`: HTML for landing/auth pages, dashboards, exam creation/marking, admin dashboards, and promotion admin override.
+- `cems/static/`: shared CSS/JS assets referenced by the templates.
+- `manage.py`, `cems/settings.py`, `cems/urls.py`: project setup and routing (including catch-all to the home/role redirect flow).
 
-## Tech Stack
-- Python 3.x, Django 5.2.8
-- PostgreSQL (default local settings: database `class_exam_db`, user `postgres`, password `masumjia`, host `127.0.0.1`, port `5432`)
-- HTML templates with static CSS/JS in `cems/static`
+## Data Seeding
+- Migrations seed AcademicYears 2024-2050, class levels CLASS 6-CLASS 10, subjects BANGLA, ENGLISH, MATH, SCIENCE, and all year/class ClassOfferings.
+- Student IDs, teacher employee codes, and enrollment roll numbers are generated automatically as profiles and enrollments are created.
 
 ## Getting Started
 1. Create and activate a virtual environment: `python -m venv venv && venv\\Scripts\\activate` (or `source venv/bin/activate`).
 2. Install dependencies: `pip install -r requirements.txt`.
-3. Create the PostgreSQL database using the credentials above (or update `cems/settings.py`).
-4. Run migrations: `python manage.py migrate`.
+3. Create the PostgreSQL database (default: name `class_exam_db`, user `postgres`, password `masumjia`, host `127.0.0.1`, port `5432`) or update `cems/settings.py`.
+4. Run migrations (seeds academic data): `python manage.py migrate`.
 5. Create a superuser for Django admin: `python manage.py createsuperuser`.
 6. Start the server: `python manage.py runserver` and open `http://127.0.0.1:8000/`.
+
+## Typical Workflow
+- Log into `/admin/` as a superuser to manage reference data or run promotions.
+- Add teacher profiles and assign them to class offerings + subjects for the current academic year.
+- Enroll students into class offerings (via Django admin or shell); IDs and rolls fill automatically.
+- Teachers create exams from `/accounts/dashboard/teacher/exams/create/` and enter marks for their roster at `/accounts/dashboard/teacher/exams/<id>/` after publishing.
+- Admins can review student performance at `/admin/performance/` and run promotions at `/admin/promote/` or via the ClassOffering admin action.
 
 ## Key URLs
 - Landing page: `/`
@@ -35,9 +44,9 @@ A Django 5.2 project for managing classes, exams, and results. The current snaps
 - Login / Logout: `/accounts/login/` and `/accounts/logout/`
 - Password reset: `/accounts/password-reset/`
 - Role redirect: `/accounts/role-redirect/`
-- Dashboards (static previews): `/accounts/dashboard/student/`, `/accounts/dashboard/teacher/`, `/accounts/admin/`
+- Dashboards: `/accounts/dashboard/student/`, `/accounts/dashboard/teacher/`, `/accounts/admin/`
 - Django admin: `/admin/`
 
 ## Notes
-- Dashboards are intentionally static; data-backed class, exam, and results workflows are temporarily disabled.
-- Student IDs are generated when `assign_student_id()` is invoked (e.g., during future enrollment flows) and are preserved on subsequent saves.
+- Console email backend is enabled for password reset in development.
+- Exam creation is limited to the current academic year; promotions cannot target future years.

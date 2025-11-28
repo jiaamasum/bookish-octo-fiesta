@@ -38,6 +38,20 @@ class StudentProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile')
     student_id = models.CharField(max_length=16, unique=True, blank=True, null=True, editable=False)
     roll_number = models.PositiveIntegerField(blank=True, null=True)
+    current_academic_year = models.ForeignKey(
+        'academics.AcademicYear',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='current_students',
+    )
+    current_class_level = models.ForeignKey(
+        'academics.ClassLevel',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='current_students',
+    )
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 

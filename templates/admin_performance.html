@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Performance{% endblock %}
+
+{% block topbar %}
+<div class="brand">
+    <span class="brand-mark">C</span>
+    <div class="brand-text">
+        <strong>CEMS</strong>
+        <small>Admin workspace</small>
+    </div>
+</div>
+<div class="top-actions">
+    <div class="status-dot online"></div>
+    <span class="status-label">Student performance overview</span>
+    <div class="chip">Admin</div>
+    <a class="btn ghost" href="{% url 'accounts:logout' %}">Logout</a>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-group">
+    <p class="sidebar-label">Admin</p>
+    <nav class="menu">
+        <a href="{% url 'accounts:admin_dashboard' %}" class="menu-link">Dashboard</a>
+        <a href="{% url 'accounts:admin_performance' %}" class="menu-link active">Student performance</a>
+    </nav>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="section" id="performance">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Performance</p>
+            <h2>Overall grades by student.</h2>
+        </div>
+        <div class="hint">Grades are computed from recorded marks; no edits here.</div>
+    </div>
+    <div class="table-scroll">
+        <table class="table compact">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Student ID</th>
+                    <th>Current class</th>
+                    <th>Year</th>
+                    <th>Roll</th>
+                    <th>Overall grade</th>
+                    <th>Overall percent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in performance %}
+                    {% with student=row.student enrollment=row.current_enrollment grade=row.current_grade %}
+                    <tr>
+                        <td>{{ student.user.username }}</td>
+                        <td>{{ student.student_id|default:"N/A" }}</td>
+                        <td>{% if enrollment %}{{ enrollment.class_offering.class_level.name }}{% else %}N/A{% endif %}</td>
+                        <td>{% if enrollment %}{{ enrollment.academic_year.year }}{% else %}N/A{% endif %}</td>
+                        <td>{% if enrollment %}{{ enrollment.roll_number|default:"TBD" }}{% else %}N/A{% endif %}</td>
+                        <td>{% if grade.overall_grade %}{{ grade.overall_grade }}{% else %}N/A{% endif %}</td>
+                        <td>{% if grade.overall_percent %}{{ grade.overall_percent|floatformat:1 }}%{% else %}N/A{% endif %}</td>
+                    </tr>
+                    {% endwith %}
+                {% empty %}
+                    <tr><td colspan="7">No students found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="section" id="history">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">History</p>
+            <h2>Per-student class-year grades.</h2>
+        </div>
+        <div class="hint">Read-only; derived from stored marks.</div>
+    </div>
+    <div class="grid two">
+        {% for row in performance %}
+            <div class="card">
+                <div class="card-header">
+                    <span>{{ row.student.user.username }}</span>
+                    <div class="chip">{{ row.student.student_id|default:"N/A" }}</div>
+                </div>
+                {% for item in row.history %}
+                    <div class="pill-list">
+                        <span class="pill accent">
+                            {{ item.enrollment.academic_year.year }} - {{ item.enrollment.class_offering.class_level.name }}
+                        </span>
+                        {% if item.overall_grade %}
+                            <span class="pill success">Grade {{ item.overall_grade }}</span>
+                            <span class="pill muted">{{ item.overall_percent|floatformat:1 }}%</span>
+                        {% else %}
+                            <span class="pill muted">No marks</span>
+                        {% endif %}
+                    </div>
+                {% empty %}
+                    <p class="muted">No history.</p>
+                {% endfor %}
+            </div>
+        {% empty %}
+            <div class="card"><p class="muted">No students.</p></div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

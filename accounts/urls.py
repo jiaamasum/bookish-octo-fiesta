@@ -11,7 +11,11 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('home/', views.catch_home, name='catch_home'),
     path('admin/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin/performance/', views.admin_student_performance, name='admin_performance'),
+    path('admin/promote/', views.admin_promote_class, name='admin_promote'),
     path('dashboard/teacher/', views.teacher_dashboard, name='teacher_dashboard'),
+    path('dashboard/teacher/exams/create/', views.teacher_exam_create, name='teacher_exam_create'),
+    path('dashboard/teacher/exams/<int:exam_id>/', views.teacher_manage_exam, name='teacher_manage_exam'),
     path('dashboard/student/', views.student_dashboard, name='student_dashboard'),
 
     # Login and Logout

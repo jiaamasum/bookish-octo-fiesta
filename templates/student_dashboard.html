@@ -44,57 +44,179 @@
     <div class="section-header">
         <div>
             <p class="eyebrow">Student workspace</p>
-            <h2>Static preview only.</h2>
+            <h2>Current enrollment and history.</h2>
         </div>
-        <div class="hint">Student ID: {{ student.student_id|default:"N/A" }}. Data wiring will return later.</div>
+        <div class="hint">Student ID: {{ student.student_id|default:"N/A" }}. Class roll updates automatically per class-year.</div>
     </div>
     <div class="metrics-grid">
         <div class="metric">
             <p class="stat-label">Current class</p>
-            <p class="stat-value">{{ static_overview.class_name }}</p>
-            <span class="tag muted">{{ static_overview.academic_year }}</span>
+            <p class="stat-value">
+                {% if enrollment %}{{ enrollment.class_offering.class_level.name }}{% else %}N/A{% endif %}
+            </p>
+            <span class="tag muted">
+                {% if enrollment %}{{ enrollment.academic_year.year }}{% else %}No active enrollment{% endif %}
+            </span>
         </div>
         <div class="metric">
             <p class="stat-label">Upcoming exams</p>
-            <p class="stat-value">{{ static_overview.upcoming_exams }}</p>
-            <span class="tag accent">Static</span>
+            <p class="stat-value">{{ upcoming_exams|length }}</p>
+            <span class="tag accent">Current class-year</span>
         </div>
         <div class="metric">
             <p class="stat-label">Published results</p>
-            <p class="stat-value">{{ static_overview.published_results }}</p>
-            <span class="tag muted">Static</span>
+            <p class="stat-value">{{ marks|length }}</p>
+            <span class="tag muted">Exam entries</span>
         </div>
         <div class="metric">
-            <p class="stat-label">Absences</p>
-            <p class="stat-value">{{ static_overview.absences }}</p>
-            <span class="tag muted">Static</span>
+            <p class="stat-label">Roll number</p>
+            <p class="stat-value">
+                {% if enrollment and enrollment.roll_number %}{{ enrollment.roll_number }}{% else %}TBD{% endif %}
+            </p>
+            <span class="tag muted">Per class-year</span>
+        </div>
+        <div class="metric">
+            <p class="stat-label">Overall grade</p>
+            <p class="stat-value">
+                {% if current_grade.overall_grade %}{{ current_grade.overall_grade }}{% else %}N/A{% endif %}
+            </p>
+            <span class="tag muted">
+                {% if current_grade.overall_percent %}{{ current_grade.overall_percent|floatformat:1 }}%{% else %}Awaiting marks{% endif %}
+            </span>
         </div>
     </div>
 </section>
 
-<section class="section" id="next">
+<section class="section" id="subjects">
     <div class="section-header">
         <div>
-            <p class="eyebrow">What to expect</p>
-            <h2>Read-only cards until data work resumes.</h2>
+            <p class="eyebrow">Subjects</p>
+            <h2>Subjects assigned to your current class.</h2>
         </div>
-        <div class="hint">Keep using auth, logout, and password reset.</div>
+        <div class="hint">Derived from teacher assignments for this class-year.</div>
+    </div>
+    <div class="pill-list">
+        {% if subjects %}
+            {% for subject in subjects %}
+                <span class="pill">{{ subject.name }}</span>
+            {% endfor %}
+        {% else %}
+            <span class="pill muted">No subjects assigned yet</span>
+        {% endif %}
+    </div>
+</section>
+
+<section class="section" id="exams">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Upcoming exams</p>
+            <h2>All exams for your class-year.</h2>
+        </div>
+        <div class="hint">Shows only dates on or after today.</div>
+    </div>
+    <div class="table-scroll">
+        <table class="table compact">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Max marks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if upcoming_exams %}
+                    {% for exam in upcoming_exams %}
+                        <tr>
+                            <td>{{ exam.title }}</td>
+                            <td>{{ exam.subject.name }}</td>
+                            <td>{{ exam.date }}</td>
+                            <td>{{ exam.max_marks }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4">No upcoming exams scheduled.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="section" id="marks">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Marks</p>
+            <h2>Results for your current class-year.</h2>
+        </div>
+        <div class="hint">Teacher-administered marks across all subjects.</div>
+    </div>
+    <div class="table-scroll">
+        <table class="table compact">
+            <thead>
+                <tr>
+                    <th>Exam</th>
+                    <th>Subject</th>
+                    <th>Date</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if marks %}
+                    {% for mark in marks %}
+                        <tr>
+                            <td>{{ mark.exam.title }}</td>
+                            <td>{{ mark.exam.subject.name }}</td>
+                            <td>{{ mark.exam.date }}</td>
+                            <td>{{ mark.marks_obtained }} / {{ mark.exam.max_marks }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4">No marks recorded yet.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="section" id="history">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">History</p>
+            <h2>Class-year wise performance.</h2>
+        </div>
+        <div class="hint">Tracks promotions and repeats by academic year.</div>
     </div>
     <div class="grid two">
-        <div class="card">
-            <div class="card-header">
-                <span>Enrollment</span>
-                <div class="chip">Placeholder</div>
+        {% for item in history %}
+            <div class="card">
+                <div class="card-header">
+                    <span>{{ item.enrollment.academic_year.year }} - {{ item.enrollment.class_offering.class_level.name }}</span>
+                    <div class="chip">Roll {{ item.enrollment.roll_number|default:"TBD" }}</div>
+                </div>
+                {% if item.overall_grade %}
+                    <div class="pill-list">
+                        <span class="pill success">Overall: {{ item.overall_grade }} ({{ item.overall_percent|floatformat:1 }}%)</span>
+                    </div>
+                {% endif %}
+                {% if item.subjects %}
+                    <div class="pill-list">
+                        {% for subject, score in item.subjects.items %}
+                            <span class="pill">{{ subject }}: {{ score|floatformat:1 }}%</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="muted">No marks recorded for this class-year.</p>
+                {% endif %}
             </div>
-            <p>Class, academic year, subjects, and roll numbers will render here once we reconnect the academic models.</p>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                <span>Exams & results</span>
-                <div class="chip">Placeholder</div>
+        {% empty %}
+            <div class="card">
+                <p class="muted">No historical results yet.</p>
             </div>
-            <p>Upcoming exams, published scores, and attendance logs are intentionally removed. The table views will return after the rebuild.</p>
-        </div>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}

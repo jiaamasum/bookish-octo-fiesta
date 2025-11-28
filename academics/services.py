@@ -112,25 +112,28 @@ def _compute_subject_averages(
     class_offering: ClassOffering,
 ) -> Dict[int, Dict[int, float]]:
     """
-    Returns mapping student_enrollment_id -> subject_id -> average percentage.
+    Returns mapping student_enrollment_id -> subject_id -> average percentage,
+    using up to the latest three exams per subject.
     """
-    subject_totals: Dict[int, Dict[int, Tuple[float, int]]] = defaultdict(lambda: defaultdict(lambda: (0.0, 0)))
+    subject_scores: Dict[int, Dict[int, List[float]]] = defaultdict(lambda: defaultdict(list))
     marks = (
         ExamMark.objects.filter(exam__class_offering=class_offering)
         .select_related("exam", "student_enrollment")
+        .order_by("-exam__date", "-exam_id")
         .all()
     )
     for mark in marks:
         exam = mark.exam
         enrollment = mark.student_enrollment
         percent = float(mark.marks_obtained) / float(exam.max_marks) * 100 if exam.max_marks else 0
-        total, count = subject_totals[enrollment.id][exam.subject_id]
-        subject_totals[enrollment.id][exam.subject_id] = (total + percent, count + 1)
+        scores = subject_scores[enrollment.id][exam.subject_id]
+        if len(scores) < 3:
+            scores.append(percent)
 
     averages: Dict[int, Dict[int, float]] = defaultdict(dict)
-    for enrollment_id, subj_map in subject_totals.items():
-        for subject_id, (total, count) in subj_map.items():
-            averages[enrollment_id][subject_id] = total / count if count else 0.0
+    for enrollment_id, subj_map in subject_scores.items():
+        for subject_id, scores in subj_map.items():
+            averages[enrollment_id][subject_id] = (sum(scores) / len(scores)) if scores else 0.0
     return averages
 
 
@@ -277,21 +280,23 @@ def _compute_subject_averages_for_student(enrollments: Iterable[StudentEnrollmen
     marks = (
         ExamMark.objects.filter(student_enrollment_id__in=enrollment_ids)
         .select_related("exam", "student_enrollment")
+        .order_by("-exam__date", "-exam_id")
         .all()
     )
-    subject_totals: Dict[int, Dict[str, Tuple[float, int]]] = defaultdict(lambda: defaultdict(lambda: (0.0, 0)))
+    subject_scores: Dict[int, Dict[str, List[float]]] = defaultdict(lambda: defaultdict(list))
     for mark in marks:
         exam = mark.exam
         enrollment_id = mark.student_enrollment_id
         subject_name = exam.subject.name
         percent = float(mark.marks_obtained) / float(exam.max_marks) * 100 if exam.max_marks else 0
-        total, count = subject_totals[enrollment_id][subject_name]
-        subject_totals[enrollment_id][subject_name] = (total + percent, count + 1)
+        scores = subject_scores[enrollment_id][subject_name]
+        if len(scores) < 3:
+            scores.append(percent)
 
     averages = defaultdict(dict)
-    for enrollment_id, subject_map in subject_totals.items():
-        for subject_name, (total, count) in subject_map.items():
-            averages[enrollment_id][subject_name] = total / count if count else 0.0
+    for enrollment_id, subject_map in subject_scores.items():
+        for subject_name, scores in subject_map.items():
+            averages[enrollment_id][subject_name] = (sum(scores) / len(scores)) if scores else 0.0
     return averages
 
 

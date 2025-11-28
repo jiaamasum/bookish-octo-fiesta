@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib import admin, messages
+from django.db.models import Q
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -75,6 +77,23 @@ class StudentEnrollmentAdmin(admin.ModelAdmin):
     )
     list_filter = ("academic_year", "class_offering__class_level", "active")
     search_fields = ("student__user__username", "student__student_id")
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        current_year = timezone.now().year
+        if "academic_year" in form.base_fields:
+            allowed_years = AcademicYear.objects.filter(year__gte=current_year)
+            if obj and obj.academic_year_id:
+                allowed_years = AcademicYear.objects.filter(Q(pk=obj.academic_year_id) | Q(year__gte=current_year))
+            form.base_fields["academic_year"].queryset = allowed_years
+        if "class_offering" in form.base_fields:
+            allowed_offerings = ClassOffering.objects.filter(academic_year__year__gte=current_year)
+            if obj and obj.class_offering_id:
+                allowed_offerings = ClassOffering.objects.filter(
+                    Q(pk=obj.class_offering_id) | Q(academic_year__year__gte=current_year)
+                )
+            form.base_fields["class_offering"].queryset = allowed_offerings
+        return form
 
     def overall_grade_display(self, obj):
         return obj.compute_overall_grade() or "N/A"

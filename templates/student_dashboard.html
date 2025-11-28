@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - CEMS{% endblock %}
+
+{% block topbar %}
+<div class="brand">
+    <span class="brand-mark">C</span>
+    <div class="brand-text">
+        <strong>CEMS</strong>
+        <small>Student workspace</small>
+    </div>
+</div>
+<div class="top-actions">
+    <div class="status-dot online"></div>
+    <span class="status-label">Logged in as {{ request.user.username }} | {{ student.student_id|default:"N/A" }}</span>
+    <div class="chip">Student</div>
+    <a class="btn ghost" href="{% url 'accounts:logout' %}">Logout</a>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar-group">
+    <p class="sidebar-label">Student</p>
+    <nav class="menu">
+        <a href="#overview" class="menu-link active">Overview</a>
+        <a href="#class" class="menu-link">Current class</a>
+        <a href="#exams" class="menu-link">Upcoming exams</a>
+        <a href="#results" class="menu-link">Results</a>
+        <a href="#history" class="menu-link">Previous years</a>
+    </nav>
+</div>
+<div class="sidebar-group muted">
+    <p class="sidebar-label">Notes</p>
+    <div class="pill-list">
+        <span class="pill">Read-only</span>
+        <span class="pill">View attendance</span>
+        <span class="pill">Track history</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="section" id="overview">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">Student workspace</p>
+            <h2>Static preview only.</h2>
+        </div>
+        <div class="hint">Student ID: {{ student.student_id|default:"N/A" }}. Data wiring will return later.</div>
+    </div>
+    <div class="metrics-grid">
+        <div class="metric">
+            <p class="stat-label">Current class</p>
+            <p class="stat-value">{{ static_overview.class_name }}</p>
+            <span class="tag muted">{{ static_overview.academic_year }}</span>
+        </div>
+        <div class="metric">
+            <p class="stat-label">Upcoming exams</p>
+            <p class="stat-value">{{ static_overview.upcoming_exams }}</p>
+            <span class="tag accent">Static</span>
+        </div>
+        <div class="metric">
+            <p class="stat-label">Published results</p>
+            <p class="stat-value">{{ static_overview.published_results }}</p>
+            <span class="tag muted">Static</span>
+        </div>
+        <div class="metric">
+            <p class="stat-label">Absences</p>
+            <p class="stat-value">{{ static_overview.absences }}</p>
+            <span class="tag muted">Static</span>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="next">
+    <div class="section-header">
+        <div>
+            <p class="eyebrow">What to expect</p>
+            <h2>Read-only cards until data work resumes.</h2>
+        </div>
+        <div class="hint">Keep using auth, logout, and password reset.</div>
+    </div>
+    <div class="grid two">
+        <div class="card">
+            <div class="card-header">
+                <span>Enrollment</span>
+                <div class="chip">Placeholder</div>
+            </div>
+            <p>Class, academic year, subjects, and roll numbers will render here once we reconnect the academic models.</p>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span>Exams & results</span>
+                <div class="chip">Placeholder</div>
+            </div>
+            <p>Upcoming exams, published scores, and attendance logs are intentionally removed. The table views will return after the rebuild.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - CEMS{% endblock %}
+
+{% block body_class %}no-topbar{% endblock %}
+{% block topbar %}{% endblock %}
+{% block sidebar %}{% endblock %}
+{% block layout_class %}auth-only{% endblock %}
+
+{% block content %}
+<section class="auth-single">
+    <div class="card auth-card">
+        <div class="card-header">
+            <span>Sign in</span>
+            <div class="chip">Secure</div>
+        </div>
+
+        <form class="form" method="POST" action="">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <p style="color: red; margin-bottom: 10px;">
+                    Invalid username or password
+                </p>
+            {% endif %}
+
+            <label>Email or username</label>
+            <input type="text" name="username" placeholder="you@school.edu" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="--------" required>
+
+            <div class="form-footer">
+                <button class="btn primary full">Login</button>
+                <a class="link-btn" href="{% url 'accounts:password_reset' %}">
+                    Forgot password?
+                </a>
+            </div>
+        </form>
+
+        <div class="helper auth-switch">
+            New here? 
+            <a href="{% url 'accounts:student_register' %}">Create an account</a>
+        </div>
+    </div>
+
+    <a class="btn return-btn" href="/">Back to home</a>
+</section>
+{% endblock %}
